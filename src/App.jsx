@@ -55,7 +55,7 @@ const Navbar = ({ activePage, setPage, menuOpen, setMenuOpen }) => {
         <div className={`absolute left-6 transition-opacity duration-500 ${activePage === 'home' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
             <button 
               onClick={() => setPage('home')}
-              className="text-3xl md:text-4xl cursor-pointer hover:opacity-80 transition-opacity"
+              className="text-2xl md:text-3xl lg:text-4xl cursor-pointer hover:opacity-80 transition-opacity"
               style={{ fontFamily: fontConfig.logo, color: themeColor }}
             >
               Nisfaldam
@@ -63,7 +63,7 @@ const Navbar = ({ activePage, setPage, menuOpen, setMenuOpen }) => {
         </div>
 
         {/* Desktop Menu - Centered */}
-        <div className="hidden md:flex gap-12 items-center">
+        <div className="hidden md:flex gap-8 lg:gap-12 items-center">
           {navLinks.map(link => (
             <button
               key={link.id}
@@ -92,7 +92,7 @@ const Navbar = ({ activePage, setPage, menuOpen, setMenuOpen }) => {
 
         {/* Mobile Menu Toggle - Absolute Right */}
         <button 
-          className="md:hidden z-50 absolute right-6"
+          className="md:hidden z-50 absolute right-6 text-white"
           onClick={() => setMenuOpen(!menuOpen)}
         >
           {menuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -110,7 +110,7 @@ const Navbar = ({ activePage, setPage, menuOpen, setMenuOpen }) => {
                   setPage(link.id);
                   setMenuOpen(false);
                 }}
-                className="block text-3xl md:text-5xl text-white text-left transition-all duration-300 font-light"
+                className="block text-4xl md:text-5xl text-white text-left transition-all duration-300 font-light"
                 style={{ fontFamily: fontConfig.body }}
                 onMouseEnter={(e) => { e.currentTarget.style.color = themeColor; e.currentTarget.style.paddingLeft = '1rem'; }}
                 onMouseLeave={(e) => { e.currentTarget.style.color = 'white'; e.currentTarget.style.paddingLeft = '0'; }}
@@ -126,13 +126,9 @@ const Navbar = ({ activePage, setPage, menuOpen, setMenuOpen }) => {
 };
 
 const Hero = () => (
-  // Hero is distinct; it should take full height. 
-  // Because it's in a flex-col layout with a footer, we use h-full or explicit height logic.
-  // We'll treat Hero as a special case that pushes the footer down, or fits exactly if desired.
-  // Here we make it occupy the full available space.
-  <section className="flex-grow flex flex-col justify-center items-center bg-[#0a0a0a] text-[#f0f0f0] overflow-hidden relative min-h-[80vh]">
+  <section className="flex-grow flex flex-col justify-center items-center bg-[#0a0a0a] text-[#f0f0f0] overflow-hidden relative min-h-[80dvh]">
     <div className="z-10 animate-slideUp" style={{ animationDelay: '0.1s' }}>
-       <h1 className="text-[18vw] md:text-[12vw] lg:text-[150px] leading-none text-center select-none" 
+       <h1 className="text-[15vw] md:text-[12vw] lg:text-[150px] leading-none text-center select-none" 
           style={{ 
             fontFamily: fontConfig.logo, 
             color: themeColor
@@ -145,21 +141,21 @@ const Hero = () => (
 );
 
 const SectionHeader = ({ title, subtitle }) => (
-  <div className="mb-16 border-b border-white/10 pb-8">
-    <h2 className="text-6xl md:text-8xl mb-4 text-white font-light tracking-tight" style={{ fontFamily: fontConfig.body }}>{title}</h2>
-    <p className="text-sm uppercase tracking-widest opacity-50 max-w-md">{subtitle}</p>
+  <div className="mb-10 md:mb-16 border-b border-white/10 pb-4 md:pb-8">
+    <h2 className="text-4xl md:text-6xl lg:text-8xl mb-2 md:mb-4 text-white font-light tracking-tight" style={{ fontFamily: fontConfig.body }}>{title}</h2>
+    <p className="text-xs md:text-sm uppercase tracking-widest opacity-50 max-w-md">{subtitle}</p>
   </div>
 );
 
 const ListRow = ({ item, index, type }) => (
   <div 
-    className="group relative py-8 border-b border-white/10 transition-colors duration-500 cursor-pointer hover:bg-white/5"
+    className="group relative py-6 md:py-8 border-b border-white/10 transition-colors duration-500 cursor-pointer hover:bg-white/5"
     style={{ animationDelay: `${index * 0.1}s` }}
   >
-    <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-4 px-4">
-      <div className="flex items-baseline gap-6 md:w-1/3">
+    <div className="flex flex-col md:flex-row md:items-baseline justify-between gap-2 md:gap-4 px-2 md:px-4">
+      <div className="flex items-baseline gap-4 md:gap-6 md:w-1/3">
         <span className="text-xs font-mono opacity-30">0{index + 1}</span>
-        <h3 className="text-2xl md:text-3xl text-white group-hover:translate-x-4 transition-transform duration-500 font-light transition-colors" 
+        <h3 className="text-xl md:text-2xl lg:text-3xl text-white group-hover:translate-x-4 transition-transform duration-500 font-light transition-colors" 
             style={{ fontFamily: fontConfig.body }}
             onMouseEnter={(e) => e.currentTarget.style.color = themeColor}
             onMouseLeave={(e) => e.currentTarget.style.color = 'white'}
@@ -169,27 +165,26 @@ const ListRow = ({ item, index, type }) => (
       </div>
       
       <div className="md:w-1/3">
-        <p className="text-sm text-white/60 group-hover:text-white transition-colors">{item.desc}</p>
+        <p className="text-xs md:text-sm text-white/60 group-hover:text-white transition-colors">{item.desc}</p>
       </div>
 
-      <div className="md:w-1/6 flex justify-end items-center gap-4">
-        <span className={`text-xs px-2 py-1 rounded-full border ${
+      <div className="mt-2 md:mt-0 flex justify-between md:justify-end items-center gap-4 w-full md:w-auto">
+        <span className={`text-[10px] md:text-xs px-2 py-1 rounded-full border ${
           type === 'future' ? 'border-purple-500/50 text-purple-300' :
           type === 'live' ? 'border-emerald-500/50 text-emerald-300' :
           'border-white/20 text-white/40'
         }`}>
           {item.status || item.year}
         </span>
-        <ArrowUpRight className="opacity-0 group-hover:opacity-100 transition-opacity duration-300" size={20} color={themeColor} />
+        <ArrowUpRight className="opacity-100 md:opacity-0 md:group-hover:opacity-100 transition-opacity duration-300" size={16} color={themeColor} />
       </div>
     </div>
   </div>
 );
 
 const ContentPage = ({ title, subtitle, items, type }) => (
-  // Removed min-h-screen. Added flex-grow to fill available space between header and footer.
-  // Added justify-center to center content vertically when it's short.
-  <div className="flex-grow flex flex-col justify-center bg-[#0a0a0a] text-[#f0f0f0] pt-32 px-6 pb-20 animate-fadeIn">
+  // Mobile: pt-24 (reduced padding), flex-col justify-center to fit screen
+  <div className="flex-grow flex flex-col justify-center bg-[#0a0a0a] text-[#f0f0f0] pt-24 md:pt-32 px-6 pb-12 md:pb-20 animate-fadeIn">
     <div className="max-w-7xl mx-auto w-full">
       <SectionHeader title={title} subtitle={subtitle} />
       
@@ -200,9 +195,9 @@ const ContentPage = ({ title, subtitle, items, type }) => (
           ))
         ) : (
           // About Content
-          <div className="grid grid-cols-1 md:grid-cols-12 gap-16 animate-slideUp" style={{ animationDelay: '0.2s' }}>
+          <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 animate-slideUp" style={{ animationDelay: '0.2s' }}>
             {/* Main Text Column */}
-            <div className="md:col-span-8 space-y-10 text-xl md:text-2xl font-light leading-relaxed text-[#e0e0e0]">
+            <div className="md:col-span-8 space-y-6 md:space-y-10 text-lg md:text-2xl font-light leading-relaxed text-[#e0e0e0]">
               <p>
                 nisfaldam studio was born from a passion for ideas that spark curiosity and challenge boundaries.
               </p>
@@ -237,10 +232,10 @@ const ContentPage = ({ title, subtitle, items, type }) => (
             </div>
 
             {/* Sidebar Column */}
-            <div className="md:col-span-4 space-y-12 text-sm opacity-60 leading-loose border-l border-white/10 pl-8 md:pt-2">
+            <div className="md:col-span-4 space-y-8 md:space-y-12 text-sm opacity-60 leading-loose border-l border-white/10 pl-6 md:pl-8 md:pt-2">
               <div>
-                 <h4 className="uppercase tracking-widest mb-4 text-xs text-white">Philosophy</h4>
-                 <ul className="space-y-2">
+                 <h4 className="uppercase tracking-widest mb-2 md:mb-4 text-xs text-white">Philosophy</h4>
+                 <ul className="space-y-1 md:space-y-2">
                    <li>Honesty</li>
                    <li>Discipline</li>
                    <li>Progress</li>
@@ -248,7 +243,7 @@ const ContentPage = ({ title, subtitle, items, type }) => (
               </div>
               
               <div>
-                <h4 className="uppercase tracking-widest mb-4 text-xs text-white">Contact</h4>
+                <h4 className="uppercase tracking-widest mb-2 md:mb-4 text-xs text-white">Contact</h4>
                 <p>hello@nisfaldam.com</p>
                 <p>+1 (555) 092-1102</p>
               </div>
@@ -261,12 +256,11 @@ const ContentPage = ({ title, subtitle, items, type }) => (
 );
 
 const Contact = () => (
-  // Removed min-h-screen. Added flex-grow.
-  <div className="flex-grow flex items-center justify-center bg-[#0a0a0a] text-[#f0f0f0] pt-32 pb-12 px-6 animate-fadeIn">
-    <div className="max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-16">
+  <div className="flex-grow flex items-center justify-center bg-[#0a0a0a] text-[#f0f0f0] pt-24 pb-12 md:pt-32 px-6 animate-fadeIn">
+    <div className="max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
       <div>
-        <h1 className="text-6xl md:text-8xl mb-8 font-light tracking-tight" style={{ fontFamily: fontConfig.body }}>Get in Touch</h1>
-        <p className="text-xl opacity-60 mb-12">
+        <h1 className="text-4xl md:text-6xl lg:text-8xl mb-6 md:mb-8 font-light tracking-tight" style={{ fontFamily: fontConfig.body }}>Get in Touch</h1>
+        <p className="text-lg md:text-xl opacity-60 mb-8 md:mb-12">
           We are always looking for the next impossible problem. 
           <br/>Tell us yours.
         </p>
@@ -288,10 +282,10 @@ const Contact = () => (
         </div>
       </div>
 
-      <form className="space-y-8" onSubmit={(e) => e.preventDefault()}>
+      <form className="space-y-6 md:space-y-8" onSubmit={(e) => e.preventDefault()}>
         <div className="space-y-2">
           <label className="text-xs uppercase tracking-widest opacity-50">Identity</label>
-          <input type="text" className="w-full bg-transparent border-b border-white/20 py-4 outline-none transition-colors text-lg" 
+          <input type="text" className="w-full bg-transparent border-b border-white/20 py-3 md:py-4 outline-none transition-colors text-base md:text-lg" 
             placeholder="Name / Organization"
             onFocus={(e) => e.target.style.borderColor = themeColor}
             onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
@@ -299,7 +293,7 @@ const Contact = () => (
         </div>
         <div className="space-y-2">
           <label className="text-xs uppercase tracking-widest opacity-50">Coordinates</label>
-          <input type="email" className="w-full bg-transparent border-b border-white/20 py-4 outline-none transition-colors text-lg" 
+          <input type="email" className="w-full bg-transparent border-b border-white/20 py-3 md:py-4 outline-none transition-colors text-base md:text-lg" 
             placeholder="Email Address" 
             onFocus={(e) => e.target.style.borderColor = themeColor}
             onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
@@ -307,14 +301,14 @@ const Contact = () => (
         </div>
         <div className="space-y-2">
           <label className="text-xs uppercase tracking-widest opacity-50">Transmission</label>
-          <textarea rows="3" className="w-full bg-transparent border-b border-white/20 py-4 outline-none transition-colors text-lg resize-none" 
+          <textarea rows="3" className="w-full bg-transparent border-b border-white/20 py-3 md:py-4 outline-none transition-colors text-base md:text-lg resize-none" 
             placeholder="Message content..."
             onFocus={(e) => e.target.style.borderColor = themeColor}
             onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
           ></textarea>
         </div>
         <button 
-          className="mt-8 px-8 py-4 border border-white/20 transition-all duration-300 uppercase tracking-widest text-xs"
+          className="mt-6 md:mt-8 px-8 py-4 border border-white/20 transition-all duration-300 uppercase tracking-widest text-xs"
           onMouseEnter={(e) => {
             e.target.style.borderColor = themeColor;
             e.target.style.backgroundColor = themeColor;
@@ -350,9 +344,8 @@ export default function App() {
   }, [page]);
 
   return (
-    // Key Change: App wrapper is flex-col and min-h-screen.
-    // This pushes footer to bottom if content is short.
-    <div className="bg-[#0a0a0a] min-h-screen text-white selection:bg-white selection:text-black overflow-x-hidden flex flex-col">
+    // Use min-h-[100dvh] to fix mobile browser bar issues
+    <div className="bg-[#0a0a0a] min-h-[100dvh] text-white selection:bg-white selection:text-black overflow-x-hidden flex flex-col">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;600&family=Pinyon+Script&display=swap');
         
@@ -373,7 +366,6 @@ export default function App() {
 
       <Navbar activePage={page} setPage={setPage} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-      {/* Main has flex-grow. It expands to fill screen. */}
       <main className="flex-grow flex flex-col relative w-full">
         {page === 'home' && <Hero />}
         
