@@ -71,7 +71,6 @@ const Navbar = ({ activePage, setPage, menuOpen, setMenuOpen }) => {
               className={`text-xs uppercase tracking-[0.2em] pb-1 border-b border-transparent transition-all duration-300`}
               style={{ 
                 fontFamily: fontConfig.body,
-                // Inline styles for dynamic hover color handling
                 borderColor: activePage === link.id ? 'rgba(255,255,255,0.5)' : 'transparent',
                 opacity: activePage === link.id ? 1 : 0.5
               }}
@@ -127,7 +126,11 @@ const Navbar = ({ activePage, setPage, menuOpen, setMenuOpen }) => {
 };
 
 const Hero = () => (
-  <section className="h-screen flex flex-col justify-center items-center bg-[#0a0a0a] text-[#f0f0f0] overflow-hidden relative">
+  // Hero is distinct; it should take full height. 
+  // Because it's in a flex-col layout with a footer, we use h-full or explicit height logic.
+  // We'll treat Hero as a special case that pushes the footer down, or fits exactly if desired.
+  // Here we make it occupy the full available space.
+  <section className="flex-grow flex flex-col justify-center items-center bg-[#0a0a0a] text-[#f0f0f0] overflow-hidden relative min-h-[80vh]">
     <div className="z-10 animate-slideUp" style={{ animationDelay: '0.1s' }}>
        <h1 className="text-[18vw] md:text-[12vw] lg:text-[150px] leading-none text-center select-none" 
           style={{ 
@@ -184,11 +187,13 @@ const ListRow = ({ item, index, type }) => (
 );
 
 const ContentPage = ({ title, subtitle, items, type }) => (
-  <div className="min-h-screen bg-[#0a0a0a] text-[#f0f0f0] pt-32 px-6 pb-20 animate-fadeIn">
-    <div className="max-w-7xl mx-auto">
+  // Removed min-h-screen. Added flex-grow to fill available space between header and footer.
+  // Added justify-center to center content vertically when it's short.
+  <div className="flex-grow flex flex-col justify-center bg-[#0a0a0a] text-[#f0f0f0] pt-32 px-6 pb-20 animate-fadeIn">
+    <div className="max-w-7xl mx-auto w-full">
       <SectionHeader title={title} subtitle={subtitle} />
       
-      <div className="flex flex-col">
+      <div className="flex flex-col w-full">
         {items ? (
           items.map((item, idx) => (
             <ListRow key={item.id} item={item} index={idx} type={type} />
@@ -256,7 +261,8 @@ const ContentPage = ({ title, subtitle, items, type }) => (
 );
 
 const Contact = () => (
-  <div className="min-h-screen bg-[#0a0a0a] text-[#f0f0f0] pt-32 px-6 flex items-center animate-fadeIn">
+  // Removed min-h-screen. Added flex-grow.
+  <div className="flex-grow flex items-center justify-center bg-[#0a0a0a] text-[#f0f0f0] pt-32 pb-12 px-6 animate-fadeIn">
     <div className="max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-16">
       <div>
         <h1 className="text-6xl md:text-8xl mb-8 font-light tracking-tight" style={{ fontFamily: fontConfig.body }}>Get in Touch</h1>
@@ -328,7 +334,7 @@ const Contact = () => (
 );
 
 const Footer = () => (
-  <footer className="py-8 text-center bg-[#0a0a0a] text-white/20 text-[10px] uppercase tracking-[0.2em]">
+  <footer className="py-8 text-center bg-[#0a0a0a] text-white/20 text-[10px] uppercase tracking-[0.2em] mt-auto">
     <span>&copy; Nisfaldam</span>
   </footer>
 );
@@ -344,6 +350,8 @@ export default function App() {
   }, [page]);
 
   return (
+    // Key Change: App wrapper is flex-col and min-h-screen.
+    // This pushes footer to bottom if content is short.
     <div className="bg-[#0a0a0a] min-h-screen text-white selection:bg-white selection:text-black overflow-x-hidden flex flex-col">
       <style>{`
         @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;600&family=Pinyon+Script&display=swap');
@@ -365,7 +373,8 @@ export default function App() {
 
       <Navbar activePage={page} setPage={setPage} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
 
-      <main className="flex-grow">
+      {/* Main has flex-grow. It expands to fill screen. */}
+      <main className="flex-grow flex flex-col relative w-full">
         {page === 'home' && <Hero />}
         
         {page === 'about' && (
