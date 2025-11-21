@@ -339,6 +339,27 @@ export default function App() {
   const [page, setPage] = useState('home');
   const [menuOpen, setMenuOpen] = useState(false);
 
+  // NEW: Effect to color the mobile browser address bar/status bar
+  useEffect(() => {
+    // 1. Set 'theme-color' for Android & iOS 15+
+    let metaThemeColor = document.querySelector("meta[name='theme-color']");
+    if (!metaThemeColor) {
+      metaThemeColor = document.createElement('meta');
+      metaThemeColor.name = 'theme-color';
+      document.head.appendChild(metaThemeColor);
+    }
+    metaThemeColor.content = '#0a0a0a';
+
+    // 2. Set legacy iOS status bar style
+    let metaAppleStatus = document.querySelector("meta[name='apple-mobile-web-app-status-bar-style']");
+    if (!metaAppleStatus) {
+      metaAppleStatus = document.createElement('meta');
+      metaAppleStatus.name = 'apple-mobile-web-app-status-bar-style';
+      document.head.appendChild(metaAppleStatus);
+    }
+    metaAppleStatus.content = 'black-translucent';
+  }, []);
+
   useEffect(() => {
     window.scrollTo(0, 0);
   }, [page]);
