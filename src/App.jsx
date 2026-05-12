@@ -11,7 +11,7 @@ import {
 // --- Configuration & Data ---
 
 const fontConfig = {
-  logo: "'Pinyon Script', cursive", 
+  logo: "'Ballet', cursive", 
   body: "'Manrope', sans-serif",
 };
 
@@ -19,21 +19,16 @@ const themeColor = '#9F86AA'; // The requested accent color
 
 const projects = {
   archived: [
-    { id: 'a1', name: 'Project Aether', year: '2021', type: 'Acquisition', desc: 'Decentralized liquidity protocol.' },
-    { id: 'a2', name: 'Blue Horizon', year: '2020', type: 'Exit', desc: 'Maritime AI logistics.' },
-    { id: 'a3', name: 'Velvet', year: '2018', type: 'Merger', desc: 'Invite-only creative social.' },
-    { id: 'a4', name: 'Onyx', year: '2016', type: 'Dissolved', desc: 'Hardware wallet infrastructure.' },
+    { id: 'a1', name: '20sClub', year: '2021-2022', desc: 'Resale Market Platform' },
+    { id: 'a2', name: 'Elbrus Media', year: '2022-2023', desc: 'Marketing Agency' },
+    { id: 'a3', name: 'Infernal', year: '2018-2023', desc: 'Clothing Brand' },
   ],
   live: [
-    { id: 'l1', name: 'Nisfaldam Core', status: 'Scaling', desc: 'Serverless ecosystem infrastructure.' },
-    { id: 'l2', name: 'Echo Labs', status: 'Active', desc: 'Real-time voice synthesis engine.' },
-    { id: 'l3', name: 'Vanta Black', status: 'Beta', desc: 'High-frequency trading algorithms.' },
+    { id: 'l1', name: 'ollimp', status: 'since 2023', desc: 'consulting agency' },
+    { id: 'l2', name: 'Nisfaldam', status: 'since 2020', desc: 'Portfolio Project' },
+    { id: 'l3', name: 'Chronically', status: 'since 2025', desc: 'Newsletter' },
   ],
-  future: [
-    { id: 'f1', name: 'Project Ocular', status: 'R&D', desc: 'Non-invasive retinal monitoring.' },
-    { id: 'f2', name: 'The Spire', status: 'Planning', desc: 'Sustainable vertical micro-cities.' },
-    { id: 'f3', name: 'Titan', status: 'Concept', desc: 'LEO commercial cargo transport.' },
-  ]
+  future: []
 };
 
 // --- Components ---
@@ -68,21 +63,19 @@ const Navbar = ({ activePage, setPage, menuOpen, setMenuOpen }) => {
             <button
               key={link.id}
               onClick={() => setPage(link.id)}
-              className={`text-xs uppercase tracking-[0.2em] pb-1 border-b border-transparent transition-all duration-300`}
+              className={`text-xs uppercase tracking-[0.2em] transition-all duration-300`}
               style={{ 
                 fontFamily: fontConfig.body,
-                borderColor: activePage === link.id ? 'rgba(255,255,255,0.5)' : 'transparent',
-                opacity: activePage === link.id ? 1 : 0.5
+                opacity: activePage === link.id ? 1 : 0.5,
+                color: activePage === link.id ? themeColor : 'white'
               }}
               onMouseEnter={(e) => {
                 e.currentTarget.style.color = themeColor;
                 e.currentTarget.style.opacity = '1';
-                if (activePage !== link.id) e.currentTarget.style.borderColor = themeColor;
               }}
               onMouseLeave={(e) => {
-                e.currentTarget.style.color = 'white';
+                e.currentTarget.style.color = activePage === link.id ? themeColor : 'white';
                 e.currentTarget.style.opacity = activePage === link.id ? '1' : '0.5';
-                if (activePage !== link.id) e.currentTarget.style.borderColor = 'transparent';
               }}
             >
               {link.label}
@@ -169,10 +162,10 @@ const ListRow = ({ item, index, type }) => (
       </div>
 
       <div className="mt-2 md:mt-0 flex justify-between md:justify-end items-center gap-4 w-full md:w-auto">
-        <span className={`text-[10px] md:text-xs px-2 py-1 rounded-full border ${
-          type === 'future' ? 'border-purple-500/50 text-purple-300' :
-          type === 'live' ? 'border-emerald-500/50 text-emerald-300' :
-          'border-white/20 text-white/40'
+        <span className={`text-[10px] md:text-xs uppercase tracking-widest ${
+          type === 'future' ? 'text-purple-300' :
+          type === 'live' ? 'text-emerald-300' :
+          'text-white/40'
         }`}>
           {item.status || item.year}
         </span>
@@ -193,6 +186,19 @@ const ContentPage = ({ title, subtitle, items, type }) => (
           items.map((item, idx) => (
             <ListRow key={item.id} item={item} index={idx} type={type} />
           ))
+        ) : type === 'future' ? (
+          // Future Content
+          <div className="max-w-4xl space-y-6 md:space-y-10 text-lg md:text-2xl font-light leading-relaxed text-[#e0e0e0] animate-slideUp" style={{ animationDelay: '0.2s' }}>
+            <p>
+              at nisfaldam, I believe in the strength of silence and the discipline of focused work.
+            </p>
+            <p>
+              when there’s something truly worth sharing, you’ll be the first to know.
+            </p>
+            <p>
+              until then, I let our actions speak — not our words.
+            </p>
+          </div>
         ) : (
           // About Content
           <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-16 animate-slideUp" style={{ animationDelay: '0.2s' }}>
@@ -256,73 +262,37 @@ const ContentPage = ({ title, subtitle, items, type }) => (
 );
 
 const Contact = () => (
-  <div className="flex-grow flex items-center justify-center bg-[#0a0a0a] text-[#f0f0f0] pt-24 pb-12 md:pt-32 px-6 animate-fadeIn">
-    <div className="max-w-5xl mx-auto w-full grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-16">
-      <div>
-        <h1 className="text-4xl md:text-6xl lg:text-8xl mb-6 md:mb-8 font-light tracking-tight" style={{ fontFamily: fontConfig.body }}>Get in Touch</h1>
-        <p className="text-lg md:text-xl opacity-60 mb-8 md:mb-12">
-          We are always looking for the next impossible problem. 
-          <br/>Tell us yours.
-        </p>
-        <div className="space-y-4">
-          <div 
-            className="flex items-center gap-4 opacity-50 cursor-pointer transition-all duration-300"
-            onMouseEnter={(e) => { e.currentTarget.style.color = themeColor; e.currentTarget.style.opacity = '1'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'white'; e.currentTarget.style.opacity = '0.5'; }}
+  <div className="flex-grow flex flex-col items-center justify-center bg-[#0a0a0a] text-[#f0f0f0] pt-24 pb-12 md:pt-32 px-6 animate-fadeIn">
+    <div className="max-w-3xl mx-auto w-full text-center space-y-16">
+      <div className="space-y-12">
+        <div>
+          <a 
+            href="mailto:contact@nisfaldam.com"
+            className="text-2xl md:text-4xl lg:text-5xl font-light transition-all duration-300 relative inline-block group"
+            onMouseEnter={(e) => { e.currentTarget.style.color = themeColor; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'white'; }}
           >
-            <Globe size={20} /> <span>www.nisfaldam.com</span>
-          </div>
-          <div 
-            className="flex items-center gap-4 opacity-50 cursor-pointer transition-all duration-300"
-            onMouseEnter={(e) => { e.currentTarget.style.color = themeColor; e.currentTarget.style.opacity = '1'; }}
-            onMouseLeave={(e) => { e.currentTarget.style.color = 'white'; e.currentTarget.style.opacity = '0.5'; }}
-          >
-            <Circle size={20} /> <span>New York • London • Tokyo</span>
-          </div>
+            contact@nisfaldam.com
+            <span className="absolute -bottom-2 left-0 w-0 h-px transition-all duration-300 group-hover:w-full" style={{ backgroundColor: themeColor }}></span>
+          </a>
+        </div>
+
+        <div className="pt-12 border-t border-white/10">
+          <p className="text-lg md:text-xl font-light text-[#e0e0e0]">
+            you can also view my work portfolio here: 
+            <br className="md:hidden" />
+            <a 
+              href="https://adamalabed.vercel.app/" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 ml-2 transition-all duration-300 group hover:opacity-80"
+              style={{ color: themeColor }}
+            >
+              link <ArrowUpRight size={18} className="transition-transform group-hover:translate-x-1 group-hover:-translate-y-1" />
+            </a>
+          </p>
         </div>
       </div>
-
-      <form className="space-y-6 md:space-y-8" onSubmit={(e) => e.preventDefault()}>
-        <div className="space-y-2">
-          <label className="text-xs uppercase tracking-widest opacity-50">Identity</label>
-          <input type="text" className="w-full bg-transparent border-b border-white/20 py-3 md:py-4 outline-none transition-colors text-base md:text-lg" 
-            placeholder="Name / Organization"
-            onFocus={(e) => e.target.style.borderColor = themeColor}
-            onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs uppercase tracking-widest opacity-50">Coordinates</label>
-          <input type="email" className="w-full bg-transparent border-b border-white/20 py-3 md:py-4 outline-none transition-colors text-base md:text-lg" 
-            placeholder="Email Address" 
-            onFocus={(e) => e.target.style.borderColor = themeColor}
-            onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
-          />
-        </div>
-        <div className="space-y-2">
-          <label className="text-xs uppercase tracking-widest opacity-50">Transmission</label>
-          <textarea rows="3" className="w-full bg-transparent border-b border-white/20 py-3 md:py-4 outline-none transition-colors text-base md:text-lg resize-none" 
-            placeholder="Message content..."
-            onFocus={(e) => e.target.style.borderColor = themeColor}
-            onBlur={(e) => e.target.style.borderColor = 'rgba(255,255,255,0.2)'}
-          ></textarea>
-        </div>
-        <button 
-          className="mt-6 md:mt-8 px-8 py-4 border border-white/20 transition-all duration-300 uppercase tracking-widest text-xs"
-          onMouseEnter={(e) => {
-            e.target.style.borderColor = themeColor;
-            e.target.style.backgroundColor = themeColor;
-            e.target.style.color = 'white';
-          }}
-          onMouseLeave={(e) => {
-            e.target.style.borderColor = 'rgba(255,255,255,0.2)';
-            e.target.style.backgroundColor = 'transparent';
-            e.target.style.color = 'white';
-          }}
-        >
-          Send Message
-        </button>
-      </form>
     </div>
   </div>
 );
@@ -368,7 +338,7 @@ export default function App() {
     // Use min-h-[100dvh] to fix mobile browser bar issues
     <div className="bg-[#0a0a0a] min-h-[100dvh] text-white selection:bg-white selection:text-black overflow-x-hidden flex flex-col">
       <style>{`
-        @import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200;300;400;600&family=Pinyon+Script&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&family=Manrope:wght@200;300;400;600&display=swap');
         
         @keyframes slideUp {
           from { transform: translateY(40px); opacity: 0; }
@@ -419,7 +389,6 @@ export default function App() {
           <ContentPage 
             title="Future" 
             subtitle="Research & Development" 
-            items={projects.future} 
             type="future"
           />
         )}
