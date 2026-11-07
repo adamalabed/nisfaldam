@@ -252,6 +252,53 @@
     padding: 2px 6px;
   }
 
+  /* "About Adam" button in the empty centre of the burst */
+  .about-adam {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 1px solid rgba(255, 255, 255, 0.32);
+    border-radius: 50%;
+    background: rgba(7, 7, 7, 0.6);
+    color: #fff;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: 0.18em;
+    line-height: 1.5;
+    text-transform: uppercase;
+    text-align: center;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: color 0.2s ease, border-color 0.2s ease, background-color 0.2s ease;
+  }
+
+  .about-adam.ready { pointer-events: auto; }
+  .about-adam:hover, .about-adam:focus-visible {
+    color: var(--accent);
+    border-color: var(--accent);
+    background: rgba(147, 169, 209, 0.08);
+    outline: none;
+  }
+
+  .pp-links { display: flex; flex-direction: column; gap: 10px; }
+  .pp-links a {
+    width: max-content;
+    max-width: 100%;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 18px;
+    color: #fff;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.25);
+    padding-bottom: 2px;
+    overflow-wrap: anywhere;
+  }
+  .pp-links a:hover, .pp-links a:focus-visible { color: var(--accent); border-color: var(--accent); outline: none; }
+
   /* Project detail panel */
   .pp {
     position: fixed;
@@ -363,6 +410,8 @@
     font-size: 22px;
     color: rgba(255, 255, 255, 0.6);
   }
+
+  .pp-nav[hidden] { display: none; }
 
   .pp-nav {
     display: flex;
@@ -766,6 +815,41 @@ const PROJECT_DETAILS = {
  }
 };
 
+// The "About Adam" page behind the button in the centre of the burst.
+// Text is word for word from the About section of adamalabed.vercel.app.
+const ABOUT_ADAM = {
+ "title": "Adam Al-Abed",
+ "subtitle": "This site is a place to see how I think, make decisions, and what projects I've worked on and built. No embellishments, and with details that usually don't fit in a resume.",
+ "sections": [
+  {
+   "label": "Context",
+   "text": "I am a medical student also working on strategic tasks: building models, analyzing processes, and helping teams make informed decisions.\n\nMedicine gave me discipline, resilience, and the habit of looking for the root cause, not just symptoms; consulting and project work added structure, critical thinking, and the ability to build working solutions from incomplete data."
+  },
+  {
+   "label": "Path",
+   "text": "I didn't get into strategic consulting by accident – during my studies, I participated in several case championships, and my team often reached the finals. I didn't treat this as a one-time experience: I analyzed mistakes, improved solution structures, and eventually, my team reached the top.\n\nAs a result, I won a grant to study at The Experts: School of Consulting, where I learned to build solutions under pressure, maintain logic, and work in a team so that the result was predictable, not accidental."
+  },
+  {
+   "label": "Experience",
+   "text": "Later, I gained work experience: I was involved in project development and scaling, led a cross-functional team, improved operational efficiency, and increased customer satisfaction.\n\nThis taught me to look at work systematically and see bottlenecks that can be fixed not through heroism, but through structure."
+  }
+ ],
+ "links": [
+  {
+   "label": "adamalabedd@gmail.com",
+   "href": "mailto:adamalabedd@gmail.com"
+  },
+  {
+   "label": "CV / Resume",
+   "href": "https://drive.google.com/file/d/1fJKqLBi3OaVvnPu37-i5XZyDRmOzr8E5/view?usp=sharing"
+  },
+  {
+   "label": "Full portfolio: adamalabed.vercel.app",
+   "href": "https://adamalabed.vercel.app/"
+  }
+ ]
+};
+
 // Thumbnails that replace the dots, three per half, each beside the project in its comment.
 // Put an image URL in `src`; empty = halftone placeholder showing `label`.
 // Images are switched off for now. To bring them back,
@@ -857,6 +941,15 @@ const imageEls = IMAGES.map((im, i) => {
   return { el, data: im };
 });
 
+const aboutBtn = document.createElement('button');
+aboutBtn.type = 'button';
+aboutBtn.className = 'about-adam';
+aboutBtn.tabIndex = -1;
+aboutBtn.innerHTML = 'About<br>Adam';
+aboutBtn.addEventListener('click', () => openAbout());
+layer.appendChild(aboutBtn);
+let aboutLast = -1;
+
 const headingEls = HEADINGS.map((h) => {
   const el = document.createElement('div');
   el.className = 'b-heading';
@@ -898,6 +991,12 @@ function layoutBurst() {
     el.style.width = `${data.w * scale}px`;
     el.style.height = `${data.h * scale}px`;
   });
+  // The button fills most of the empty circle the arrows start from
+  const d = Math.max(72, 150 * scale);
+  aboutBtn.style.width = `${d}px`;
+  aboutBtn.style.height = `${d}px`;
+  aboutBtn.style.fontSize = `${Math.max(9, 10 * scale)}px`;
+
   headingEls.forEach(({ el, data }) => {
     el.style.left = `${cx + data.x * scale}px`;
     el.style.top = `${cy + data.y * scale}px`;
@@ -1051,7 +1150,7 @@ function drawBurst(p) {
 
     // One dot per project leaves the centre dot and travels to its title,
     // drawing its arrow behind it. Dots start small and stay at the end.
-    const r0 = 95 * k;
+    const r0 = Math.max(95 * k, Math.max(72, 150 * k) / 2 + 8);
     const dotEnd = Math.max(3, 4.5 * k);
     labelEls.forEach((L, j) => {
       const t = easeInOut(clamp01((b - travelStart(j)) / 0.22));
@@ -1108,6 +1207,16 @@ function drawBurst(p) {
     H.el.textContent = scramble(H.data.text, q);
   });
 
+  // "About Adam" appears in the centre once the titles are in place
+  const qa = active ? easeOut(clamp01((b - 0.5) / 0.08)) : 0;
+  if (qa !== aboutLast) {
+    aboutLast = qa;
+    aboutBtn.style.opacity = qa.toFixed(3);
+    aboutBtn.style.transform = `translate(-50%, -50%) scale(${(0.85 + 0.15 * qa).toFixed(3)})`;
+    aboutBtn.classList.toggle('ready', qa >= 1);
+    aboutBtn.tabIndex = qa >= 1 ? 0 : -1;
+  }
+
   // Each title decodes in as its dot arrives, then becomes clickable
   labelEls.forEach((L, j) => {
     const q = active ? clamp01((b - travelStart(j) - 0.18) / 0.12) : 0;
@@ -1142,6 +1251,7 @@ const panel = document.getElementById('project-panel');
 const ppBody = document.getElementById('pp-body');
 const ppPrev = document.getElementById('pp-prev');
 const ppNext = document.getElementById('pp-next');
+const ABOUT = -2; // openIndex while the About Adam page is showing
 let openIndex = -1;
 let returnFocus = null;
 
@@ -1170,15 +1280,9 @@ function renderText(text) {
   return box;
 }
 
-function fillProject(i) {
-  const p = PROJECTS[i];
-  const d = PROJECT_DETAILS[p.num] || {};
-  document.getElementById('pp-cat').textContent = d.category || (i < 6 ? 'Personal venture' : 'Professional career');
-  document.getElementById('pp-num').textContent = p.num.replace('.', '') + ' / ' + String(PROJECTS.length).padStart(2, '0');
-  document.getElementById('pp-title').textContent = d.title || p.name;
-  document.getElementById('pp-sub').textContent = d.subtitle || p.place;
+function fillSections(sections) {
   ppBody.replaceChildren();
-  (d.sections || []).forEach((sec) => {
+  (sections || []).forEach((sec) => {
     const row = document.createElement('section');
     row.className = 'pp-sec';
     const label = document.createElement('h3');
@@ -1186,9 +1290,40 @@ function fillProject(i) {
     label.style.margin = '0';
     label.style.fontWeight = '400';
     label.textContent = sec.label;
-    row.append(label, renderText(sec.text));
+    row.append(label, sec.node || renderText(sec.text));
     ppBody.appendChild(row);
   });
+}
+
+function fillAbout() {
+  document.getElementById('pp-cat').textContent = 'About';
+  document.getElementById('pp-num').textContent = 'Nisfaldam';
+  document.getElementById('pp-title').textContent = ABOUT_ADAM.title;
+  document.getElementById('pp-sub').textContent = ABOUT_ADAM.subtitle;
+  const links = document.createElement('div');
+  links.className = 'pp-links';
+  ABOUT_ADAM.links.forEach((l) => {
+    const a = document.createElement('a');
+    a.href = l.href;
+    a.textContent = l.label;
+    if (!l.href.startsWith('mailto:')) { a.target = '_blank'; a.rel = 'noopener noreferrer'; }
+    links.appendChild(a);
+  });
+  fillSections([...ABOUT_ADAM.sections, { label: 'Contact', node: links }]);
+  document.querySelector('.pp-nav').hidden = true;
+  panel.scrollTop = 0;
+  openIndex = ABOUT;
+}
+
+function fillProject(i) {
+  const p = PROJECTS[i];
+  const d = PROJECT_DETAILS[p.num] || {};
+  document.getElementById('pp-cat').textContent = d.category || (i < 6 ? 'Personal venture' : 'Professional career');
+  document.getElementById('pp-num').textContent = p.num.replace('.', '') + ' / ' + String(PROJECTS.length).padStart(2, '0');
+  document.getElementById('pp-title').textContent = d.title || p.name;
+  document.getElementById('pp-sub').textContent = d.subtitle || p.place;
+  fillSections(d.sections);
+  document.querySelector('.pp-nav').hidden = false;
   if (d.note) {
     const note = document.createElement('p');
     note.className = 'pp-note';
@@ -1204,6 +1339,19 @@ function fillProject(i) {
   openIndex = i;
 }
 
+function showPanel() {
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  document.documentElement.style.overflow = 'hidden';
+  document.getElementById('pp-close').focus({ preventScroll: true });
+}
+
+function openAbout() {
+  returnFocus = document.activeElement;
+  fillAbout();
+  showPanel();
+}
+
 function openProject(i) {
   returnFocus = document.activeElement;
   fillProject(i);
@@ -1214,11 +1362,11 @@ function openProject(i) {
 }
 
 function closeProject() {
-  if (openIndex < 0) return;
+  if (openIndex === -1) return;
   panel.classList.remove('open');
   panel.setAttribute('aria-hidden', 'true');
   document.documentElement.style.overflow = '';
-  const back = labelEls[openIndex] && labelEls[openIndex].el;
+  const back = openIndex === ABOUT ? aboutBtn : labelEls[openIndex] && labelEls[openIndex].el;
   openIndex = -1;
   (back || returnFocus) && (back || returnFocus).focus({ preventScroll: true });
 }
@@ -1227,11 +1375,12 @@ document.getElementById('pp-close').addEventListener('click', closeProject);
 ppPrev.addEventListener('click', () => { if (openIndex > 0) fillProject(openIndex - 1); });
 ppNext.addEventListener('click', () => { if (openIndex < PROJECTS.length - 1) fillProject(openIndex + 1); });
 document.addEventListener('keydown', (e) => {
-  if (openIndex < 0) return;
+  if (openIndex === -1) return;
   if (e.key === 'Escape') closeProject();
   // Keep keyboard focus inside the open panel
   if (e.key === 'Tab') {
-    const f = [...panel.querySelectorAll('button:not([hidden])')];
+    const f = [...panel.querySelectorAll('button:not([hidden]), a[href]')]
+      .filter((el) => !el.closest('[hidden]'));
     const first = f[0], last = f[f.length - 1];
     if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
     else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
