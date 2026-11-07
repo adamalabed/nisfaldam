@@ -182,14 +182,35 @@
     z-index: 16;
   }
 
+  /* Each project label is a button that opens its detail panel */
   .b-label {
     position: absolute;
     display: flex;
+    align-items: flex-start;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: none;
     font-family: 'Inter', sans-serif;
     font-weight: 500;
     line-height: 1.15;
+    text-align: left;
     color: #fff;
     white-space: nowrap;
+    cursor: pointer;
+    pointer-events: none;
+    transition: color 0.2s ease;
+  }
+
+  .b-label.ready { pointer-events: auto; }
+  .b-label:hover, .b-label:focus-visible { color: var(--accent); outline: none; }
+  .b-label .l2 { opacity: 0.6; }
+
+  /* Invisible hit area so the small text is an easy target */
+  .b-label::before {
+    content: '';
+    position: absolute;
+    inset: -10px -12px;
   }
 
   .b-heading {
@@ -229,6 +250,133 @@
     color: #111;
     background: #e3e3e3;
     padding: 2px 6px;
+  }
+
+  /* Project detail panel */
+  .pp {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    overflow-y: auto;
+    background: rgba(7, 7, 7, 0.97);
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.35s ease, visibility 0s linear 0.35s;
+  }
+
+  .pp.open {
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 0.35s ease;
+  }
+
+  .pp-inner {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 40px 24px 96px;
+    transform: translateY(12px);
+    transition: transform 0.45s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .pp.open .pp-inner { transform: none; }
+
+  .pp-mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.5);
+  }
+
+  .pp-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 72px;
+  }
+
+  .pp-btn {
+    min-height: 44px;
+    padding: 0 2px;
+    border: 0;
+    background: none;
+    color: rgba(255, 255, 255, 0.7);
+    cursor: pointer;
+  }
+
+  .pp-btn:hover, .pp-btn:focus-visible { color: #fff; outline: none; }
+  .pp-btn[hidden] { display: none; }
+  #pp-next { margin-left: auto; text-align: right; }
+
+  .pp-title {
+    margin: 14px 0 0;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-weight: 400;
+    font-size: clamp(44px, 9vw, 76px);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: #f2f2f2;
+  }
+
+  .pp-sub {
+    margin: 22px 0 0;
+    max-width: 600px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 19px;
+    line-height: 1.5;
+    color: rgba(255, 255, 255, 0.72);
+  }
+
+  .pp-body { margin-top: 64px; }
+
+  .pp-sec {
+    display: grid;
+    grid-template-columns: 150px minmax(0, 1fr);
+    gap: 24px;
+    padding: 28px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  .pp-text {
+    font-family: 'Inter', sans-serif;
+    font-weight: 300;
+    font-size: 16px;
+    line-height: 1.7;
+    color: rgba(255, 255, 255, 0.82);
+  }
+
+  .pp-text p { margin: 0 0 14px; }
+  .pp-text p:last-child { margin-bottom: 0; }
+  .pp-text h3 { margin: 22px 0 6px; font-size: 16px; font-weight: 500; color: #fff; }
+  .pp-text h3:first-child { margin-top: 0; }
+  .pp-text ul { margin: 0 0 14px; padding-left: 18px; }
+  .pp-text li { margin-bottom: 6px; }
+  .pp-text li::marker { color: var(--accent); }
+
+  .pp-note {
+    padding: 28px 0;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-style: italic;
+    font-size: 22px;
+    color: rgba(255, 255, 255, 0.6);
+  }
+
+  .pp-nav {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-top: 48px;
+    padding-top: 20px;
+    border-top: 1px solid rgba(255, 255, 255, 0.12);
+  }
+
+  @media (max-width: 640px) {
+    .pp-top { margin-bottom: 48px; }
+    .pp-sec { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+    .pp-sub { font-size: 17px; }
   }
 
   #loader {
@@ -341,6 +489,23 @@
   </div>
 </div>
 
+<div class="pp" id="project-panel" role="dialog" aria-modal="true" aria-labelledby="pp-title" aria-hidden="true">
+  <div class="pp-inner">
+    <div class="pp-top">
+      <span class="pp-mono" id="pp-cat"></span>
+      <button type="button" class="pp-btn pp-mono" id="pp-close">Close</button>
+    </div>
+    <span class="pp-mono" id="pp-num"></span>
+    <h2 class="pp-title" id="pp-title"></h2>
+    <p class="pp-sub" id="pp-sub"></p>
+    <div class="pp-body" id="pp-body"></div>
+    <nav class="pp-nav" aria-label="Projects">
+      <button type="button" class="pp-btn pp-mono" id="pp-prev"></button>
+      <button type="button" class="pp-btn pp-mono" id="pp-next"></button>
+    </nav>
+  </div>
+</div>
+
 <script>
 // =====================================================================
 // CONTENT: edit these to fill in your projects.
@@ -358,7 +523,7 @@ const HEADINGS = [
 const PROJECTS = [
   // Left half: ventures
   { num: '01.', name: '20sClub',              place: 'Resale platform, 2021–22',  x: -420, y: -470 },
-  { num: '02.', name: 'Elbrus Media',         place: 'Marketing agency, 2022–23', x: -350, y: -290 },
+  { num: '02.', name: 'Elbrus Media',         place: 'Marketing agency, 2022–23', x: -440, y: -290 },
   { num: '03.', name: 'Infernal',             place: 'Clothing brand, 2018–23',   x: -440, y: -110 },
   { num: '04.', name: 'ollimp',               place: 'Consulting, since 2023',    x: -380, y:   70 },
   { num: '05.', name: 'Nisfaldam',            place: 'Portfolio, since 2020',     x: -430, y:  250 },
@@ -371,6 +536,235 @@ const PROJECTS = [
   { num: '11.', name: 'MIPT Phystech Valley', place: 'Technopark model',          x:  170, y:  250 },
   { num: '12.', name: 'MTS',                  place: 'MTS-Marketer UX',           x:  230, y:  430 }
 ];
+
+// What opens when a project is clicked.
+// 07-12 come word for word from the English case studies on adamalabed.vercel.app.
+// 01-06 are placeholders until the venture write-ups arrive: add `sections`
+// ([{ label, text }]) to a venture and remove its `note`.
+const PROJECT_DETAILS = {
+ "01.": {
+  "category": "Personal venture",
+  "subtitle": "Resale market platform, 2021–2022",
+  "sections": [],
+  "note": "The full story is on its way."
+ },
+ "02.": {
+  "category": "Personal venture",
+  "subtitle": "Marketing agency, 2022–2023",
+  "sections": [],
+  "note": "The full story is on its way."
+ },
+ "03.": {
+  "category": "Personal venture",
+  "subtitle": "Clothing brand, 2018–2023",
+  "sections": [],
+  "note": "The full story is on its way."
+ },
+ "04.": {
+  "category": "Personal venture",
+  "subtitle": "Consulting agency, since 2023",
+  "sections": [],
+  "note": "The full story is on its way."
+ },
+ "05.": {
+  "category": "Personal venture",
+  "subtitle": "Portfolio project, since 2020",
+  "sections": [],
+  "note": "The full story is on its way."
+ },
+ "06.": {
+  "category": "Personal venture",
+  "subtitle": "Newsletter, since 2025",
+  "sections": [],
+  "note": "The full story is on its way."
+ },
+ "07.": {
+  "category": "Professional career",
+  "title": "Beesline Cosmetics",
+  "subtitle": "Expansion of Beesline Cosmetics in the MENA Market",
+  "sections": [
+   {
+    "label": "Context",
+    "text": "Beesline Cosmetics is an international brand of natural skincare cosmetics, successfully established in niche categories but facing limited penetration in broader mass segments of the MENA market.\n\nThe company was at a stage where sustainable growth was possible only through strategic changes: expanding the product line, redistributing focus between segments, improving customer experience, and strengthening distribution channels."
+   },
+   {
+    "label": "Goal",
+    "text": "Ensure sustainable brand growth in MENA regions through strategy, operational structure, and improving the quality of the customer journey.\n\nKey Tasks:\n\n• Conduct market and competitive analysis in MENA.\n• Identify segments with the highest growth potential.\n• Develop a strategy for entering new markets and adapting the product portfolio.\n• Improve elements of customer experience and retention programs.\n• Propose initiatives to expand sales channels (retail + e-commerce)."
+   },
+   {
+    "label": "Approach",
+    "text": "01. Analytical Block\nAnalysis of categories and demand dynamics in 6 countries of the region. Benchmarking competitors by price, communication, SKUs, and growth models. Evaluation of distribution channels and regional consumption patterns. In-depth interviews with local representatives and partners.\n\n02. Product-Strategic Analysis\nSegmentation of the target audience and building a client-centric needs map. Revision of the current product portfolio and identifying expansion points. Forming hypotheses for launching new lines for mass segments.\n\n03. Customer Experience\nEvaluation of current touchpoints: purchase, repeat order, digital channels, communications. Analysis of the loyalty program and its impact on retention. Developing proposals to improve CX to increase repeat purchase frequency.\n\n04. Sales Channels\nEvaluation of current distribution effectiveness. Identifying promising retailers and e-commerce platforms. Modeling growth potential with channel expansion."
+   },
+   {
+    "label": "My Role",
+    "text": "Business Analyst and Strategist.\n\n• Analyzed the MENA market and competitive environment, identifying key growth drivers.\n• Developed a strategy for entering two new markets, considering local demand and positioning.\n• Participated in forming the product strategy and identified categories for expansion.\n• Worked on elements of customer experience and loyalty programs.\n• Prepared recommendations for expanding sales channels with a focus on e-commerce."
+   },
+   {
+    "label": "Solutions",
+    "text": "Main Recommendations:\n\n• Focused development in the most capacious categories.\n• Launch of a strategy to enter two additional MENA markets.\n• Adaptation of product lines to the consumer specifics of individual countries.\n• Overhaul of the loyalty program and digital communications.\n• Expansion of sales channels: new retailers and online platforms."
+   },
+   {
+    "label": "Results",
+    "text": "Commercial and Operational Results:\n\n• Sales growth — about 15–18% during the recommendation integration period.\n• Strengthening brand positions in key segments (market share growth in some categories).\n• Entry into two new countries in the region.\n• Increase in repeat purchases due to improved customer journey.\n• Optimization of marketing activities and increased channel efficiency.\n\nStrategic Effect:\n\n• Strengthening brand presence in the international market.\n• Greater predictability in demand planning and product portfolio management.\n• Strategic foundation for further scaling."
+   }
+  ]
+ },
+ "08.": {
+  "category": "Professional career",
+  "title": "Moskvich",
+  "subtitle": "Development of a growth strategy and value chain optimization for the Moskvich plant under sanctions.",
+  "sections": [
+   {
+    "label": "Context",
+    "text": "After Renault's exit from Russia, the Moscow government decided to preserve and relaunch the plant's production capacities, using the infrastructure to develop the domestic auto industry under the Moskvich brand. The plant found itself in a difficult position: lack of international presence, weak brand recognition, dependence on Chinese components, and sanctions restrictions amidst strong competition from Lada and Chinese brands. Under these conditions, an external strategic analysis was required to form a realistic route to growth through optimization of existing processes, localization, and strengthening marketing, rather than through expensive long-term R&D."
+   },
+   {
+    "label": "Goal",
+    "text": "Develop a comprehensive strategy that will allow Moskvich to reach revenue of 140 billion rubles by 2027 within 3–4 years through value chain optimization, supply localization, strengthening the dealer network, and digital marketing.\n\nKey Tasks:\n\n• Diagnose Moskvich's current position relative to competitors on key metrics.\n• Identify bottlenecks in logistics, production, and supply structure.\n• Form a sales expansion strategy (RF regions, CIS).\n• Develop a holistic marketing and digital strategy.\n• Prepare an investment and phased plan (2024–2027)."
+   },
+   {
+    "label": "Approach",
+    "text": "01. Research and Analytics\nAnalysis of the industry context: sanctions, localization trends, growth of digital marketing. Moskvich was compared with AvtoVAZ (Lada), Geely, Chery, and Haval in terms of reliability, cost, advertising budgets, and model characteristics.\n\n02. Product and Strategy\nInstead of focusing on long and capital-intensive development of new models, a path of rational optimization of the existing product line was chosen. Emphasis on SUVs and electric vehicles and adaptation of current models.\n\n03. Customer Journey and Communications\nAnalysis of the customer journey revealed that low dealer network density and weak media presence reduce trust. Methodology: expansion of dealer points and strengthening digital communications.\n\n04. Processes and Operations\nAssessment of current production processes, modernization of capacities, introduction of automation, optimization of logistics and warehouse infrastructure.\n\n05. Economics and Modeling\nA financial scenario was built: annual output should grow by 7,000–10,000 cars, and revenue reach 140 billion rubles by 2027.\n\n06. Implementation and Roadmap\nInitiatives structured into a roadmap for a 3-year period, including 14 key steps."
+   },
+   {
+    "label": "My Role",
+    "text": "Business Analyst and Strategic Consultant.\n\n• Participated in collecting and structuring data on the market, competitors, and consumers, prepared comparative tables.\n• Participated in developing blocks on supplier localization, improving logistics, and production automation.\n• Formed a draft financial model and helped package results into a presentation."
+   },
+   {
+    "label": "Solutions",
+    "text": "Main Recommendations:\n\n• Localization of production and work with Russian suppliers: partnerships with Avtoelektronika, Severstal, Avtodizel (GAZ), Bor Glassworks, and KAMAZ.\n• Sales expansion and product diversification: strengthening the dealer network across RF regions, entering CIS markets, focus on SUVs and EVs.\n• Improving logistics and production: implementing production line automation, digital management systems, route optimization.\n• Strengthening marketing strategy: expanding advertising campaigns in digital channels, using online video, launching loyalty programs."
+   },
+   {
+    "label": "Results",
+    "text": "Expected Effects:\n\n• By 2024: expected revenue increase by 10 billion rubles, output growth by 7,000 cars, cost reduction by 5%.\n• By 2025: planned revenue growth to 50 billion rubles, annual output growth by 10,000 cars, operational cost reduction by 10%.\n• By 2026: forecasted cost reduction by 15%, market share growth by 5%.\n• By 2027: target benchmark — achieving total revenue of 140 billion rubles, full investment coverage, logistics savings up to 20%."
+   }
+  ]
+ },
+ "09.": {
+  "category": "Professional career",
+  "title": "VK (Vkontakte)",
+  "subtitle": "Innovative strategy for HTML5 games on VKontakte",
+  "sections": [
+   {
+    "label": "Context",
+    "text": "HTML5 games on VKontakte are a developing but undervalued segment within the platform's ecosystem: it is not fully integrated into the feed, groups, and other key social network usage scenarios. Games are hard to discover, UX is fragmented, monetization is limited to basic formats, and the team supporting the games platform consists of only five people. Against the backdrop of a growing browser and mobile games market, VK faced the task of turning HTML5 games from a side section into an organic part of the product ecosystem."
+   },
+   {
+    "label": "Goal",
+    "text": "Develop an innovative strategy for the development of HTML5 games on VKontakte that will increase user engagement, expand the audience, and strengthen monetization by integrating games into social scenarios and improving UX.\n\nKey Tasks:\n\n• Increase user engagement by improving interface and navigation.\n• Increase the game audience through cross-promotion with the feed, clips, and video.\n• Optimize monetization (rewarded ads, microtransactions).\n• Strengthen the social aspect of games (challenges, achievements).\n• Create attractive conditions for developers."
+   },
+   {
+    "label": "Approach",
+    "text": "01. Research and Analytics\nAnalytics of user activity within VKontakte. Study of competitor experience — Facebook Gaming, WeChat Mini Games, Snapchat — focusing on personalization, cross-promotion, and gamification.\n\n02. Product and Strategy\nA concept of a next-generation ecosystem where HTML5 games exist not in isolation. Creation of a game hub with personalized recommendations, integration into main VK products.\n\n03. Customer Journey\nRethinking the path from \"game — separate section\" to \"game — natural continuation of social activity\". The user finds games through the feed, clips, chats.\n\n04. Interaction with Developers\nReducing commission, improving analytics and promo tools for studios.\n\n05. Economics and Monetization\nModel around rewarded ads, microtransactions, and indirect revenue from increased time spent in the social network."
+   },
+   {
+    "label": "My Role",
+    "text": "Product and Business Analyst in the Unlimited Money Limited team.\n\n• Participated in analyzing the current state of the VK gaming segment, interpreting internal data and the competitive landscape.\n• Formulated key problems (low integration, weak UX).\n• Contributed to the development of the next-generation game ecosystem concept.\n• Helped structure the final presentation and visual schemes of the ecosystem."
+   },
+   {
+    "label": "Solutions",
+    "text": "Main Recommendations:\n\n• Innovative UX and Game Hub: creating a centralized hub with personalized recommendations.\n• Cross-promo with main VK products: introducing unobtrusive game promo blocks in the feed, clips, video, and messenger.\n• Monetization development: rewarded ads, expanding microtransactions.\n• Social network gamification: game challenges, achievement system, and rewards for social activity.\n• Developer support: reducing commission, improving analytics tools, holding game promotions."
+   },
+   {
+    "label": "Results",
+    "text": "The project aims to form a long-term competitive gaming ecosystem for VKontakte, comparable in engagement to Facebook Gaming and WeChat Mini Games.\n\nExpected Effects:\n\n• Relaunch of the HTML5 game segment.\n• Growth in engagement due to improved UX and integration with social functions.\n• Audience expansion through cross-promo.\n• Improved game profitability through rewarded ads and microtransactions.\n• Increased platform attractiveness for developers."
+   }
+  ]
+ },
+ "10.": {
+  "category": "Professional career",
+  "title": "Gazprom Neft",
+  "subtitle": "Strategy for deploying vinyl-n-butyl ether production in Russia",
+  "sections": [
+   {
+    "label": "Context",
+    "text": "Vinyl-n-butyl ethers are fully imported into Russia, while the product is critical for the oil and gas, paint and varnish, textile, and chemical industries. The global market is dominated by BASF and other foreign manufacturers. Russia has the raw material base but lacks domestic production. Demand for eco-friendly materials is growing, and the trend for import substitution is intensifying, opening a window of opportunity to launch domestic production."
+   },
+   {
+    "label": "Goal",
+    "text": "Develop a concept for localizing the production of vinyl-n-butyl ethers in Russia based on domestic technologies and raw materials with a focus on economic efficiency, reducing import dependence, and environmental sustainability.\n\nKey Tasks:\n\n• Analyze the global and Russian markets.\n• Evaluate technological approaches (incl. \"green\" technologies).\n• Form a technological and production model of a localized plant.\n• Evaluate project economics (CAPEX/OPEX, payback).\n• Identify key stakeholders and partners."
+   },
+   {
+    "label": "Approach",
+    "text": "01. Research and Analytics\nAnalysis of the global market (player shares, BASF ~40%) and the profile of Russian consumers. Comparison with analogues (acrylates, polyesters), confirming the potential of the target product.\n\n02. Technologies and Product\nStudy of the catalytic production method. Emphasis on domestic catalysts and \"green synthesis\" technologies to reduce dependence on imported equipment.\n\n03. Localization and R&D\nReliance on Russian scientific centers (KFU, NHTI) and startups. Use of state support programs (Ministry of Industry and Trade).\n\n04. Economics and Modeling\nAssessment of capital and operational costs. Modeling a five-year financial profile taking localization into account.\n\n05. Ecology and Sustainability\nReducing CO₂ emissions using modern catalysts, energy efficiency, compliance with ESG standards."
+   },
+   {
+    "label": "My Role",
+    "text": "Business Analyst and Strategic Consultant.\n\n• Participated in market and import dependence analysis, structured data on manufacturers and consumers.\n• Compared the target product with analogues in terms of properties and cost.\n• Helped form the technological and economic logic of the project (catalytic method, \"green synthesis\").\n• Evaluated the impact of localization on cost and payback, participated in preparing conclusions on economics and ESG."
+   },
+   {
+    "label": "Solutions",
+    "text": "Main Recommendations:\n\n• Localization of production based on domestic raw materials and technologies.\n• Development and introduction of domestic catalysts together with universities and research institutes.\n• Use of \"green\" synthesis technologies: reducing harmful emissions, increasing energy efficiency.\n• Attracting state programs and private investment to finance R&D and construction.\n• Forming long-term contracts with key consumers for sustainable demand."
+   },
+   {
+    "label": "Results",
+    "text": "The model showed that the project payback period could be 3–5 years due to reduced logistics costs and production costs.\n\nExpected Effects:\n\n• Economic Benefit: reducing import dependence, creating jobs.\n• Environmental Effect: introducing energy-efficient technologies reduces CO₂ emissions and improves compliance with ESG requirements, making the project sustainable in the long term."
+   }
+  ]
+ },
+ "11.": {
+  "category": "Professional career",
+  "title": "MIPT (Phystech Valley)",
+  "subtitle": "Product approach to technopark management and INTC business model",
+  "sections": [
+   {
+    "label": "Context",
+    "text": "\"Phystech Valley\" is the innovative scientific and technological center (INTC) of MIPT, which should become the core of the deeptech ecosystem. The technopark market is highly competitive (Skolkovo, Innopolis), and the current INTC model relied largely on rent and did not realize the full potential of value-added services. A strategy was required that would ensure financial sustainability and maximize the contribution to technology development."
+   },
+   {
+    "label": "Goal",
+    "text": "Form a development strategy for \"Phystech Valley\" as a product in the technopark market, building a resident funnel, a hybrid business model, and an infrastructure development plan.\n\nKey Tasks:\n\n• Analyze best practices of technoparks.\n• Form a resident funnel and INTC roles at each stage.\n• Develop a balanced business model (basic + high-margin services).\n• Design infrastructure structure (clusters).\n• Describe the model of working with students and scientists.\n• Prepare a financial and investment model until 2040."
+   },
+   {
+    "label": "Approach",
+    "text": "01. Research and Analytics\nThe technopark was viewed as a product. Analysis showed that competitors (Skolkovo, IT Park) win due to the ecosystem and services, not just rent.\n\n02. Product and Strategy\nINTC is designed as a managed funnel: from awareness to scaling. INTC functions are defined for each stage (target search, infrastructure, support).\n\n03. Resident Customer Journey\nThe resident is a client with a full life cycle. Support from the idea stage (hackathons) to maturity (entering new markets, IPO).\n\n04. Business Model and Services\nA hybrid of basic (rent) and mission directions (shared use centers, education, R&D on order, acceleration). Assessment of profitability and risk of each service.\n\n05. Infrastructure and Clusters\nFunctionally distributed buildings: \"Biotech\", \"AI + Quantum\", \"Robotics\", etc.\n\n06. Economics\nFinancial model taking into account CAPEX, NPV, ROI, resident dynamics, and revenue structure."
+   },
+   {
+    "label": "My Role",
+    "text": "Business Analyst and Strategic Consultant in the Yakov Think Tank team.\n\n• Participated in a comparative analysis of Russian technoparks, formed conclusions on their business models.\n• Worked on structuring the resident funnel, assessing service profitability, and elaborating MIPT's role.\n• Participated in preparing the final logic of the financial model (NPV, ROI, resident dynamics) and packaging conclusions."
+   },
+   {
+    "label": "Solutions",
+    "text": "Main Recommendations:\n\n• Managing the technopark as a product: building a full resident funnel.\n• Hybrid business model: combining rent with high-margin directions (Shared Use Centers, R&D, acceleration).\n• Cluster approach to infrastructure: specialized buildings for biotech, AI, robotics.\n• Model of working with students and scientists: involvement in project work and startups.\n• Integration with investors and industry: attracting major partners and using IRaaS tools."
+   },
+   {
+    "label": "Results",
+    "text": "According to the financial model:\n\n• NPV > 1.743 billion rubles with CAPEX 13.1 billion rubles and ROI 10.7%.\n• Sustainable growth dynamics of the number of residents to 1,526 by 2040.\n• Shift in revenue structure from rent to a diversified model (R&D, services).\n• Creation of about 1,400 jobs and tax revenues ~677 million rubles."
+   }
+  ]
+ },
+ "12.": {
+  "category": "Professional career",
+  "title": "MTS",
+  "subtitle": "Improving convenience and predictability of the MTS-Marketer service",
+  "sections": [
+   {
+    "label": "Context",
+    "text": "MTS-Marketer operates in the fast-growing digital marketing services market. Despite strong functionality, users face unpredictable campaign results, a complex interface, and slow internal processes, which holds back the growth of returning customers and loyalty. The market trend is strengthening towards AI tips, personalization, and high-quality support."
+   },
+   {
+    "label": "Goal",
+    "text": "Redesign the interface and internal processes of the service to increase convenience, transparency, and predictability of campaigns, increase the share of returning customers, and bring NPS into the positive zone.\n\nKey Tasks:\n\n• Analyze best practices (AI, support, communities).\n• Identify current service problems (traffic, interface, moderation).\n• Formulate initiatives to improve UX and processes.\n• Prioritize initiatives using the RICE method.\n• Evaluate the effect of implementation."
+   },
+   {
+    "label": "Approach",
+    "text": "01. Research and Best Practices\nStudy of platforms with AI tips, integration with CRM, and developed support.\n\n02. Problem and Need Analysis\nIdentified problems: poor traffic quality, display glitches, weak audience reaction. Needs: automation, templates, analytics, fast support.\n\n03. Interface Diagnostics\nAudit revealed illogical menu hierarchy, lack of search, prolonged moderation and launch processes.\n\n04. Prioritization (RICE)\nInitiatives ranked by Reach, Impact, Confidence, Effort. Top priorities: menu reorganization, search, chatbot, eliminating duplicates, AI moderation."
+   },
+   {
+    "label": "My Role",
+    "text": "Product Analyst and UX Consultant in the \"Endless Branding Shores\" team.\n\n• Participated in analyzing the market and competitors, formulated a user problem map.\n• Helped structure the UX audit of the interface and processes.\n• Contributed to the development of the list of initiatives and their prioritization using the RICE method.\n• Participated in packaging solutions in Executive Summary format."
+   },
+   {
+    "label": "Solutions",
+    "text": "Main Recommendations:\n\n• Sidebar reorganization: logical hierarchy to reduce cognitive load.\n• Introduction of global search: across the site and media materials.\n• 24/7 Chatbot and improved support: first line based on AI for quick answers.\n• Elimination of duplicate elements and UI optimization.\n• AI bot for banner moderation: accelerating campaign launch.\n• Test campaigns: ability to evaluate results before a large-scale launch."
+   },
+   {
+    "label": "Results",
+    "text": "Expected Effects:\n\n• Increasing the share of returning customers by 5% can raise profits by more than 25%.\n• Implementation of key initiatives within 5 months.\n• Forecast of NPS entering positive values in the 3rd month due to improved UX and support.\n• Increasing competitiveness and technological advancement of the service."
+   }
+  ]
+ }
+};
 
 // Thumbnails that replace the dots, three per half, each beside the project in its comment.
 // Put an image URL in `src`; empty = halftone placeholder showing `label`.
@@ -423,35 +817,31 @@ window.addEventListener('scroll', readScroll, { passive: true });
 window.addEventListener('resize', () => { lastDrawn = -1; layoutBurst(); readScroll(); });
 
 // =====================================================================
-// Burst geometry (seeded so it is the same on every visit)
+// Burst geometry: one arrow and one dot per project, aimed at its title.
+// Anchors are worked out in layoutBurst() from each label's real size.
 // =====================================================================
-let seed = 11;
-const rnd = () => { seed = (seed * 16807) % 2147483647; return (seed - 1) / 2147483646; };
-
-const DOTS = [];
-for (let i = 0; i < 54; i++) {
-  const ang = rnd() * Math.PI * 2;
-  const u = 0.25 + 0.75 * Math.sqrt(rnd());
-  // Split order: 4 dots leave first, then 10, then the rest
-  const delay = i < 4 ? 0.06 + rnd() * 0.02 : i < 14 ? 0.10 + rnd() * 0.04 : 0.14 + rnd() * 0.10;
-  DOTS.push({ x: Math.cos(ang) * 430 * u, y: Math.sin(ang) * 520 * u, delay, fade: rnd() * 0.05 });
-}
-
-const ARROWS = [];
-for (let i = 0; i < 30; i++) {
-  ARROWS.push({ ang: rnd() * Math.PI * 2, len: 25 + Math.pow(rnd(), 0.8) * 420, delay: rnd() * 0.08 });
-}
+const measureCtx = document.createElement('canvas').getContext('2d');
+let hovered = -1;
 
 // =====================================================================
 // Labels and thumbnails (DOM)
 // =====================================================================
-const labelEls = PROJECTS.map((p) => {
-  const el = document.createElement('div');
+const labelEls = PROJECTS.map((p, i) => {
+  const el = document.createElement('button');
+  el.type = 'button';
   el.className = 'b-label';
-  el.innerHTML = '<span class="num"></span><span class="txt"><span class="l1"></span><span class="l2"></span></span>';
+  el.tabIndex = -1;
+  el.setAttribute('aria-label', `${p.name}, ${p.place}. Open project`);
+  el.innerHTML = '<span class="num" aria-hidden="true"></span><span class="txt" aria-hidden="true"><span class="l1"></span><span class="l2"></span></span>';
   el.querySelector('.num').textContent = p.num;
+  el.addEventListener('click', () => openProject(i));
+  el.addEventListener('mouseenter', () => { hovered = i; lastDrawn = -1; });
+  el.addEventListener('mouseleave', () => { if (hovered === i) { hovered = -1; lastDrawn = -1; } });
+  el.addEventListener('focus', () => { hovered = i; lastDrawn = -1; });
+  el.addEventListener('blur', () => { if (hovered === i) { hovered = -1; lastDrawn = -1; } });
   layer.appendChild(el);
-  return { el, data: p, l1: el.querySelector('.l1'), l2: el.querySelector('.l2'), last: -1 };
+  // ax/ay: where the dot lands, beside the title (offsets from the centre, in px)
+  return { el, data: p, l1: el.querySelector('.l1'), l2: el.querySelector('.l2'), last: -1, ax: 0, ay: 0 };
 });
 
 const imageEls = IMAGES.map((im, i) => {
@@ -480,11 +870,27 @@ function layoutBurst() {
   const cx = sw / 2, cy = sh / 2;
   const fs = Math.max(9, 11 * scale);
 
-  labelEls.forEach(({ el, data }) => {
-    el.style.left = `${cx + data.x * scale}px`;
-    el.style.top = `${cy + data.y * scale}px`;
+  measureCtx.font = `500 ${fs}px Inter, sans-serif`;
+  const gapIn = 14 * scale, gapOut = 22 * scale, edge = 8, mid = 10;
+  labelEls.forEach((L) => {
+    const { el, data } = L;
+    const top = data.y * scale;
+    const numW = 55 * scale;
+    const textW = Math.max(measureCtx.measureText(data.name).width, measureCtx.measureText(data.place).width);
+    // Keep every label on screen and inside its own half (matters on phones,
+    // where the minimum text size makes labels wider than the design space)
+    const w = numW + textW;
+    let x = cx + data.x * scale;
+    if (data.x < 0) x = Math.max(edge, Math.min(x, cx - mid - w - gapIn));
+    else x = Math.min(sw - edge - w, Math.max(x, cx + mid + gapOut));
+    const left = x - cx;
+    el.style.left = `${x}px`;
+    el.style.top = `${cy + top}px`;
     el.style.fontSize = `${fs}px`;
-    el.querySelector('.num').style.width = `${55 * scale}px`;
+    el.querySelector('.num').style.width = `${numW}px`;
+    // The arrow arrives on the side of the title that faces the centre
+    L.ax = data.x < 0 ? left + w + gapIn : left - gapOut;
+    L.ay = top + fs * 1.15;
   });
   imageEls.forEach(({ el, data }) => {
     el.style.left = `${cx + data.x * scale}px`;
@@ -628,7 +1034,7 @@ function drawBurst(p) {
 
   if (active) {
     // Divider between the two halves: grows out from the centre, skipping the empty circle
-    const dv = easeOut(clamp01((b - 0.30) / 0.10));
+    const dv = easeOut(clamp01((b - 0.22) / 0.10));
     if (dv > 0) {
       const gap = 120 * k, reach = gap + (560 * k - gap) * dv;
       bctx.strokeStyle = 'rgba(255,255,255,0.18)';
@@ -643,73 +1049,76 @@ function drawBurst(p) {
       bctx.setLineDash([]);
     }
 
-    // Arrows radiating from the empty centre
+    // One dot per project leaves the centre dot and travels to its title,
+    // drawing its arrow behind it. Dots start small and stay at the end.
     const r0 = 95 * k;
-    bctx.strokeStyle = 'rgba(255,255,255,0.55)';
-    bctx.fillStyle = 'rgba(255,255,255,0.55)';
-    bctx.lineWidth = Math.max(1, 1.3 * k);
-    for (const a of ARROWS) {
-      const t = easeOut(clamp01((b - 0.12 - a.delay) / 0.25));
-      const len = a.len * k * t;
-      if (len < 2) continue;
-      const c = Math.cos(a.ang), s = Math.sin(a.ang);
-      const x1 = cx + c * r0, y1 = cy + s * r0;
-      const x2 = cx + c * (r0 + len), y2 = cy + s * (r0 + len);
-      bctx.beginPath();
-      bctx.moveTo(x1, y1);
-      bctx.lineTo(x2, y2);
-      bctx.stroke();
-      const hs = 6 * k;
-      bctx.beginPath();
-      bctx.moveTo(x2, y2);
-      bctx.lineTo(x2 - c * hs - s * hs * 0.55, y2 - s * hs + c * hs * 0.55);
-      bctx.lineTo(x2 - c * hs + s * hs * 0.55, y2 - s * hs - c * hs * 0.55);
-      bctx.closePath();
-      bctx.fill();
-    }
+    const dotEnd = Math.max(3, 4.5 * k);
+    labelEls.forEach((L, j) => {
+      const t = easeInOut(clamp01((b - travelStart(j)) / 0.22));
+      if (t <= 0) return;
+      const dist = Math.hypot(L.ax, L.ay);
+      const ux = L.ax / dist, uy = L.ay / dist;
+      const dx = cx + L.ax * t, dy = cy + L.ay * t;
+      const r = Math.max(1.5, 2 * k) + (dotEnd - Math.max(1.5, 2 * k)) * t;
+      const lit = j === hovered;
 
-    // The single seed dot, which the split dots leave behind
+      // Arrow from the edge of the empty centre to just behind the dot
+      const tipD = dist * t - r - 6 * k;
+      if (tipD > r0 + 4 * k) {
+        const x1 = cx + ux * r0, y1 = cy + uy * r0;
+        const x2 = cx + ux * tipD, y2 = cy + uy * tipD;
+        const col = lit ? 'rgba(147,169,209,0.95)' : 'rgba(255,255,255,0.5)';
+        bctx.strokeStyle = col;
+        bctx.fillStyle = col;
+        bctx.lineWidth = Math.max(1, 1.2 * k);
+        bctx.beginPath();
+        bctx.moveTo(x1, y1);
+        bctx.lineTo(x2, y2);
+        bctx.stroke();
+        const hs = 6 * k;
+        bctx.beginPath();
+        bctx.moveTo(x2, y2);
+        bctx.lineTo(x2 - ux * hs - uy * hs * 0.55, y2 - uy * hs + ux * hs * 0.55);
+        bctx.lineTo(x2 - ux * hs + uy * hs * 0.55, y2 - uy * hs - ux * hs * 0.55);
+        bctx.closePath();
+        bctx.fill();
+      }
+
+      bctx.fillStyle = lit ? '#93A9D1' : '#e8e8e8';
+      bctx.beginPath();
+      bctx.arc(dx, dy, r, 0, Math.PI * 2);
+      bctx.fill();
+    });
+
+    // The single centre dot (formed by the paper's dots in drawMorph) shrinks as its dots split off
     bctx.fillStyle = '#e8e8e8';
-    // Pops in out of the black (slight overshoot), holds, then shrinks as the dots split off
-    // Already formed by the paper's dots (drawMorph); it holds, then shrinks as the dots split off
-    const seedR = 14 * k * (1 - clamp01((b - 0.06) / 0.12));
+    const seedR = 14 * k * (1 - clamp01((b - 0.06) / 0.16));
     if (seedR > 0.3) {
       bctx.beginPath();
       bctx.arc(cx, cy, seedR, 0, Math.PI * 2);
       bctx.fill();
     }
-
-    // Dots flying outward, then shrinking away as the thumbnails arrive
-    bctx.beginPath();
-    for (const d of DOTS) {
-      const t = easeOut(clamp01((b - d.delay) / 0.22));
-      if (t <= 0) continue;
-      const out = clamp01((b - 0.60 - d.fade) / 0.08);
-      const r = 10 * k * (1 - out);
-      if (r < 0.3) continue;
-      const x = cx + d.x * k * t, y = cy + d.y * k * t;
-      bctx.moveTo(x + r, y);
-      bctx.arc(x, y, r, 0, Math.PI * 2);
-    }
-    bctx.fill();
   }
 
   // Half headings decode in just before the labels
   headingEls.forEach((H) => {
-    const q = active ? clamp01((b - 0.32) / 0.08) : 0;
+    const q = active ? clamp01((b - 0.24) / 0.08) : 0;
     if (q === H.last && (q === 0 || q === 1)) return;
     H.last = q;
     H.el.textContent = scramble(H.data.text, q);
   });
 
-  // Labels decode in, one after another
+  // Each title decodes in as its dot arrives, then becomes clickable
   labelEls.forEach((L, j) => {
-    const q = active ? clamp01((b - 0.36 - j * 0.012) / 0.12) : 0;
+    const q = active ? clamp01((b - travelStart(j) - 0.18) / 0.12) : 0;
     if (q === L.last && (q === 0 || q === 1)) return;
     L.last = q;
     L.l1.textContent = scramble(L.data.name, clamp01(q * 1.6));
     L.l2.textContent = scramble(L.data.place, clamp01(q * 1.6 - 0.6));
     L.el.firstChild.style.opacity = q > 0 ? '1' : '0';
+    const ready = q >= 1;
+    L.el.classList.toggle('ready', ready);
+    L.el.tabIndex = ready ? 0 : -1;
   });
 
   // Thumbnails pop in, blurred to sharp
@@ -720,6 +1129,114 @@ function drawBurst(p) {
     el.style.filter = q < 1 ? `blur(${((1 - q) * 10).toFixed(1)}px)` : 'none';
   });
 }
+
+// When project j's dot leaves the centre: the two halves move together, top to bottom
+function travelStart(j) {
+  return 0.06 + (j % 6) * 0.025 + (j >= 6 ? 0.012 : 0);
+}
+
+// =====================================================================
+// Project detail panel
+// =====================================================================
+const panel = document.getElementById('project-panel');
+const ppBody = document.getElementById('pp-body');
+const ppPrev = document.getElementById('pp-prev');
+const ppNext = document.getElementById('pp-next');
+let openIndex = -1;
+let returnFocus = null;
+
+// Turns the portfolio's plain-text sections into paragraphs, subheadings and lists
+function renderText(text) {
+  const box = document.createElement('div');
+  box.className = 'pp-text';
+  text.split('\n\n').forEach((block) => {
+    const lines = block.split('\n').map((l) => l.trim()).filter(Boolean);
+    let list = null;
+    lines.forEach((line, i) => {
+      if (/^[•-]\s*/.test(line)) {
+        if (!list) { list = document.createElement('ul'); box.appendChild(list); }
+        const li = document.createElement('li');
+        li.textContent = line.replace(/^[•-]\s*/, '');
+        list.appendChild(li);
+        return;
+      }
+      list = null;
+      const isHead = i === 0 && lines.length > 1 && (/^\d{2}\./.test(line) || (line.length < 60 && !/[.!?]$/.test(line)));
+      const el = document.createElement(isHead ? 'h3' : 'p');
+      el.textContent = line;
+      box.appendChild(el);
+    });
+  });
+  return box;
+}
+
+function fillProject(i) {
+  const p = PROJECTS[i];
+  const d = PROJECT_DETAILS[p.num] || {};
+  document.getElementById('pp-cat').textContent = d.category || (i < 6 ? 'Personal venture' : 'Professional career');
+  document.getElementById('pp-num').textContent = p.num.replace('.', '') + ' / ' + String(PROJECTS.length).padStart(2, '0');
+  document.getElementById('pp-title').textContent = d.title || p.name;
+  document.getElementById('pp-sub').textContent = d.subtitle || p.place;
+  ppBody.replaceChildren();
+  (d.sections || []).forEach((sec) => {
+    const row = document.createElement('section');
+    row.className = 'pp-sec';
+    const label = document.createElement('h3');
+    label.className = 'pp-mono';
+    label.style.margin = '0';
+    label.style.fontWeight = '400';
+    label.textContent = sec.label;
+    row.append(label, renderText(sec.text));
+    ppBody.appendChild(row);
+  });
+  if (d.note) {
+    const note = document.createElement('p');
+    note.className = 'pp-note';
+    note.textContent = d.note;
+    ppBody.appendChild(note);
+  }
+  const prev = PROJECTS[i - 1], next = PROJECTS[i + 1];
+  ppPrev.hidden = !prev;
+  ppNext.hidden = !next;
+  if (prev) ppPrev.textContent = '← ' + prev.name;
+  if (next) ppNext.textContent = next.name + ' →';
+  panel.scrollTop = 0;
+  openIndex = i;
+}
+
+function openProject(i) {
+  returnFocus = document.activeElement;
+  fillProject(i);
+  panel.classList.add('open');
+  panel.setAttribute('aria-hidden', 'false');
+  document.documentElement.style.overflow = 'hidden';
+  document.getElementById('pp-close').focus({ preventScroll: true });
+}
+
+function closeProject() {
+  if (openIndex < 0) return;
+  panel.classList.remove('open');
+  panel.setAttribute('aria-hidden', 'true');
+  document.documentElement.style.overflow = '';
+  const back = labelEls[openIndex] && labelEls[openIndex].el;
+  openIndex = -1;
+  (back || returnFocus) && (back || returnFocus).focus({ preventScroll: true });
+}
+
+document.getElementById('pp-close').addEventListener('click', closeProject);
+ppPrev.addEventListener('click', () => { if (openIndex > 0) fillProject(openIndex - 1); });
+ppNext.addEventListener('click', () => { if (openIndex < PROJECTS.length - 1) fillProject(openIndex + 1); });
+document.addEventListener('keydown', (e) => {
+  if (openIndex < 0) return;
+  if (e.key === 'Escape') closeProject();
+  // Keep keyboard focus inside the open panel
+  if (e.key === 'Tab') {
+    const f = [...panel.querySelectorAll('button:not([hidden])')];
+    const first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  }
+});
 
 // Smoothed scroll loop (similar feel to GSAP scrub: 1)
 function tick() {
@@ -857,6 +1374,7 @@ function initHalftonePoster() {
 // Start
 // =====================================================================
 layoutBurst();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { layoutBurst(); lastDrawn = -1; });
 readScroll();
 requestAnimationFrame(tick);
 
@@ -867,5 +1385,6 @@ if (document.fonts && document.fonts.load) {
   start();
 }
 </script>
+
 </body>
 </html>
