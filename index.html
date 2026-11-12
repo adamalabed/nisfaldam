@@ -35,7 +35,7 @@
   ::-webkit-scrollbar-thumb { background: #333; }
 
   /* Scroll track: room for flip, hold, paper-to-dot morph and the burst */
-  #scroll-track { position: relative; width: 100%; height: 700vh; }
+  #scroll-track { position: relative; width: 100%; height: 380vh; }
 
   .stage {
     position: sticky;
@@ -1389,7 +1389,7 @@ document.addEventListener('keydown', (e) => {
 
 // Smoothed scroll loop (similar feel to GSAP scrub: 1)
 function tick() {
-  current += (target - current) * 0.08;
+  current += (target - current) * 0.12;
   if (Math.abs(target - current) < 0.0002) current = target;
   applyCard(current);
   drawBurst(current);
